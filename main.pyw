@@ -1,7 +1,7 @@
 import os, subprocess, random, customtkinter as ctk
 from tkinter import filedialog, messagebox as mb
 from PIL import Image, ImageTk, ImageDraw, ImageFont
-from PIL.Image import Resampling
+import PIL.Image as Resampling
 
 ctk.set_appearance_mode("dark")  # Modes: system (default), light, dark. ### Window theme
 ctk.set_default_color_theme("green")  # Themes: blue (default), dark-blue, green. ### Used for default button colors & other
