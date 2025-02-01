@@ -1,4 +1,4 @@
-import os, subprocess, random, customtkinter as ctk
+import customtkinter as ctk
 from tkinter import filedialog, messagebox as mb
 from PIL import Image, ImageTk, ImageDraw, ImageFont
 import PIL.Image as Resampling
@@ -10,108 +10,72 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
+from components.app.placeholder import Placeholder
+from components.app.utils import open_folder, generate
 
 
-ctk.set_appearance_mode("dark")  # Modes: system (default), light, dark. ### Window theme
-ctk.set_default_color_theme(
-    "green")  # Themes: blue (default), dark-blue, green. ### Used for default button colors & other
-
-normalFont = ('components/fonts/Montserrat-Regular.ttf', 17)  # used many times for buttons, small headings etc...
 
 
-def open_folder():
-    if os.path.isdir("generated_certificates"):
-        os.startfile('generated_certificates')
 
-
-def folder_check():  # Creates a new 'generated_certificates' folder if not already present
-    if os.path.isdir("generated_certificates"):
-        os.system("rmdir /s /q generated_certificates")  # not recommended to use
-        os.mkdir("generated_certificates")
-    else:
-        os.mkdir("generated_certificates")
-
-
-def generate(placeholders,data):
-    folder_check()
-    for record in data:
-        img = Image.open(filepath)  # loading the selected certificate template
-        draw = ImageDraw.Draw(img)
-        for placeholder in placeholders:
-            draw.text((placeholder.x-103, placeholder.y), record[placeholder.header], font=ImageFont.truetype('components/fonts/Poppins-Medium.ttf', 30),
-                  fill="black")  # setting the co-ordinates to draw the names
-        img.save(
-            r'generated_certificates/' + record['name'] + ".png")
-
-class Placeholder:
-    def __init__(self, master, canvas, header, x, y, i):
-        self.canvas = canvas
-        self.header = header
-        self.master = master
-        self.x = x
-        self.y = y
-        self.placeholder_image = ImageTk.PhotoImage(Image.open(f"components/images/text{i}.png"))
-        self.drag_image = self.canvas.create_image(100, 100, image=self.placeholder_image, anchor="nw")
-        self.canvas.configure(scrollregion=self.canvas.bbox(self.drag_image))
-        self.canvas.tag_bind(self.drag_image, "<Button1-Motion>", self.move, add="+")  ####### ↓↓↓ key binds ↓↓↓ #######
-        self.canvas.bind("<Button-3>", self.scan)
-        self.canvas.bind("<Button3-Motion>", self.drag)
-        self.canvas.tag_bind(self.drag_image, "<Button1-Motion>", self.update_coordinates, add="+")  ####### ↓↓↓ key binds ↓↓↓ #######
-
-    def move(self, event):
-        self.canvas.moveto(self.drag_image,event.x-103,event.y)
-
-    def update_coordinates(self,event):
-        self.x = event.x / self.master.ratio
-        self.y = event.y / self.master.ratio
-
-    def scan(self, event):
-        self.canvas.scan_mark(event.x, event.y)
-
-    def drag(self, event):
-        self.canvas.scan_dragto(event.x, event.y, gain=2)
 
 
 class App(ctk.CTk):  ####### ↓↓↓ Main Window or Root ↓↓↓ #######
-    def __init__(self):
+    def __init__(self, system_variables):
         super().__init__()
+
+        self.system_variables = system_variables
         self.title("Certifly")
         self.iconbitmap('components/images/icon.ico')  # certifly window icon
-        self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}")  # getting user's screen size
-        self.state('zoomed')
+        self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}+0+0")  # full screen window
+        
         self.title = ctk.CTkLabel(self, text='CERTIFLY', font=('components/fonts/Montserrat-Bold.ttf', 50))  # Setting title
-        self.tagline = ctk.CTkLabel(self, text='Certificates on the Go', font=normalFont)  # Setting tagline
+        self.tagline = ctk.CTkLabel(self, text='Certificates on the Go', font=self.system_variables['normalFont'])  # Setting tagline
         self.bind("<Escape>", self.exit_window)  # press 'escape' to exit the window
-        self.dark_mode_img = ctk.CTkImage(Image.open('components/images/dark_mode.png'), size=(30, 30))
-        self.light_mode_img = ctk.CTkImage(Image.open('components/images/light_mode.png'), size=(30, 30))
-        self.mode_switch_button = ctk.CTkButton(self, image=self.light_mode_img, text="", height=20, width=20,
-                                                corner_radius=50, fg_color="transparent", command=self.mode_switcher)
+        
         self.title.pack()  ####### ↓↓↓ placing title, tagline & mode switcher ↓↓↓ #######
         self.tagline.pack()
-        self.mode_switch_button.pack(side='right', anchor='ne', padx=30)
         self.sideFrame = ctk.CTkFrame(self)  ####### ↓↓↓ Frame to hold the name textbox and related buttons ↓↓↓ #######
-        self.sideFrame.pack(side='left', padx=20)
+        self.sideFrame.pack(side='left', anchor = 'nw',padx=20)
+
+        self.rightFrame = ctk.CTkFrame(self)  ####### ↓↓↓ Frame to Add Buttons in the Right ↓↓↓ #######
+        self.rightFrame.pack(side='right', anchor='ne', padx=20)
+
+        self.dark_mode_img = ctk.CTkImage(Image.open('components/images/dark_mode.png'), size=(30, 30))
+        self.light_mode_img = ctk.CTkImage(Image.open('components/images/light_mode.png'), size=(30, 30))
+        self.mode_switch_button = ctk.CTkButton(self.rightFrame, image=self.light_mode_img, text="", height=20, width=20,
+                                                corner_radius=50, fg_color="transparent", command=self.mode_switcher)
+        self.mode_switch_button.pack(padx=30,pady=20)
+        self.reset_button = ctk.CTkButton(self.rightFrame, text="Reset", font=self.system_variables['normalFont'], corner_radius=40,
+                                            command=self.reset)
+        self.reset_button.pack(padx=30, pady=20)
+
+        self.button = ctk.CTkButton(self.rightFrame, text="Enter Names", font=self.system_variables['normalFont'], corner_radius=40,
+                                    command=self.enter_names)
+        self.button.pack(padx=30, pady=10)
+        
+        
+
         self.menu_panel_title = ctk.CTkLabel(self.sideFrame, text='Menu Panel',
-                                             font=normalFont)  ####### ↓↓↓ making widgets ↓↓↓ #######
-        self.open_button = ctk.CTkButton(self.sideFrame, text="Open Image", font=normalFont, corner_radius=40,
+                                             font=self.system_variables['normalFont'])  ####### ↓↓↓ making widgets ↓↓↓ #######
+        self.open_button = ctk.CTkButton(self.sideFrame, text="Open Image", font=self.system_variables['normalFont'], corner_radius=40,
                                          command=self.open_image)  # button to open an image file
 
-        self.data_button = ctk.CTkButton(self.sideFrame, text="Load Data", font=normalFont, corner_radius=40,
+        self.data_button = ctk.CTkButton(self.sideFrame, text="Load Data", font=self.system_variables['normalFont'], corner_radius=40,
                                          command=self.load_data)
-        self.data_headers = ctk.CTkTextbox(self.sideFrame, width=170, height=120, font=normalFont,
+        self.data_headers = ctk.CTkTextbox(self.sideFrame, width=170, height=120, font=self.system_variables['normalFont'],
                                          wrap='word')
         self.data_headers.configure(state="disabled")
 
-        self.gen_sample_button = ctk.CTkButton(self.sideFrame, text="Generate Sample", font=normalFont,
+        self.gen_sample_button = ctk.CTkButton(self.sideFrame, text="Generate Sample", font=self.system_variables['normalFont'],
                                                corner_radius=40,
                                                command=self.generate_sample)  # button to open an image file
-        self.gen_all_button = ctk.CTkButton(self.sideFrame, text="Generate All", font=normalFont, corner_radius=40,
+        self.gen_all_button = ctk.CTkButton(self.sideFrame, text="Generate All", font=self.system_variables['normalFont'], corner_radius=40,
                                             command=self.generate_all)  # button to open an image file
 
-        self.mail_all_button = ctk.CTkButton(self.sideFrame, text="Mail All", font=normalFont, corner_radius=40,
+        self.mail_all_button = ctk.CTkButton(self.sideFrame, text="Mail All", font=self.system_variables['normalFont'], corner_radius=40,
                                             command=self.generate_all)
 
-        self.info_label = ctk.CTkLabel(self.sideFrame, text='', font=normalFont,
+        self.info_label = ctk.CTkLabel(self.sideFrame, text='', font=self.system_variables['normalFont'],
                                        text_color='green')  # label to show info about button clicks & all
         self.menu_panel_title.pack(padx=30, pady=10, anchor='center')  ####### ↓↓↓ placing widgets ↓↓↓ #######
         self.open_button.pack(padx=30, pady=10, anchor='center')
@@ -129,10 +93,15 @@ class App(ctk.CTk):  ####### ↓↓↓ Main Window or Root ↓↓↓ #######
 
         self.placeholders = []
 
+    def reset(self):
+        self.data_headers.configure(state="normal")
+        self.data_headers.delete("1.0", "end")
+        self.canvas.delete("all")
+        self.placeholders = []
+        
     def load_data(self):
-        global datafilepath  # for accessing the selected image on generate() function
-        datafilepath = filedialog.askopenfilename()
-        df = pd.read_csv(datafilepath)
+        self.system_variables['datafilepath']= filedialog.askopenfilename()
+        df = pd.read_csv(self.system_variables['datafilepath'])
         self.data_headers.configure(state="normal")
         global headers
         headers = list(df.columns)
@@ -169,9 +138,8 @@ class App(ctk.CTk):  ####### ↓↓↓ Main Window or Root ↓↓↓ #######
     def open_image(self):
         if True:
             try:
-                global filepath  # for accessing the selected image on generate() function
-                filepath = filedialog.askopenfilename()
-                self.image = Image.open(filepath)
+                self.system_variables['filepath'] = filedialog.askopenfilename()
+                self.image = Image.open(self.system_variables['filepath'])
                 width, height = 1200, 857
                 self.ratio = min(width / self.image.width, height / self.image.height)
                 self.image = self.image.resize(
@@ -210,7 +178,7 @@ class App(ctk.CTk):  ####### ↓↓↓ Main Window or Root ↓↓↓ #######
 
             data.append(record)
 
-            generate(self.placeholders, data)
+            generate(self,self.placeholders, data)
             mb.showinfo('Cerificates Generated', 'All cerificates has been generated')
             open_folder()
         except:
@@ -218,9 +186,9 @@ class App(ctk.CTk):  ####### ↓↓↓ Main Window or Root ↓↓↓ #######
 
     def generate_all(self):
         try:
-            data = pd.read_csv(datafilepath).to_dict('records')
+            data = pd.read_csv(self.system_variables['datafilepath']).to_dict('records')
 
-            generate(self.placeholders, data)
+            generate(self,self.placeholders, data)
             mb.showinfo('Cerificates Generated', 'All cerificates has been generated')
             open_folder()
         except:
@@ -232,7 +200,7 @@ class App(ctk.CTk):  ####### ↓↓↓ Main Window or Root ↓↓↓ #######
 
 
     def email_all(self):
-        data = pd.read_csv(datafilepath).to_dict('records')
+        data = pd.read_csv(self.system_variables['datafilepath']).to_dict('records')
         fromaddr = "EMAIL address of the sender"
         # creates SMTP session
         s = smtplib.SMTP('smtp.gmail.com', 587)
@@ -262,7 +230,7 @@ class App(ctk.CTk):  ####### ↓↓↓ Main Window or Root ↓↓↓ #######
             # string to store the body of the mail
             body = "Body_of_the_mail"
 
-            img = Image.open(filepath)  # loading the selected certificate template
+            img = Image.open(self.system_variables['filepath'])  # loading the selected certificate template
             draw = ImageDraw.Draw(img)
             for placeholder in self.placeholders:
                 draw.text((placeholder.x - 103, placeholder.y), record[placeholder.header],
@@ -330,7 +298,3 @@ class App(ctk.CTk):  ####### ↓↓↓ Main Window or Root ↓↓↓ #######
 
     def exit_window(self, event=None):
         self.destroy()  # to exit the window
-
-
-app = App()
-app.mainloop()
