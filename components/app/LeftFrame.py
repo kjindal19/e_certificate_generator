@@ -15,26 +15,31 @@ class LeftUpperFrame(ctk.CTkFrame):
         self.system_variables = system_variables
         self.master = master
         self.menu_panel_title = ctk.CTkLabel(self, text='Menu Panel',
-                                             font=self.system_variables['normalFont'])  ####### ↓↓↓ making widgets ↓↓↓ #######
-        self.open_button = ctk.CTkButton(self, text="Open Image", font=self.system_variables['normalFont'], corner_radius=40,
+                                             font=self.system_variables['PFont'])  ####### ↓↓↓ making widgets ↓↓↓ #######
+        self.open_button = ctk.CTkButton(self, text="Open Image", font=self.system_variables['PFont'], corner_radius=40,
                                          command=self.open_image)  # button to open an image file
 
-        self.data_button = ctk.CTkButton(self, text="Load Data", font=self.system_variables['normalFont'], corner_radius=40,
+        self.data_button = ctk.CTkButton(self, text="Load Data", font=self.system_variables['PFont'], corner_radius=40,
                                          command=self.load_data)
-        self.data_headers = ctk.CTkTextbox(self, width=170, height=120, font=self.system_variables['normalFont'],
+        self.data_headers_label = ctk.CTkLabel(self, text='Data Heading', font=self.system_variables['PFont'])
+        self.data_headers = ctk.CTkTextbox(self, width=170, height=120, font=self.system_variables['PFont'],
                                          wrap='word')
         self.data_headers.configure(state="disabled")
-        self.info_label = ctk.CTkLabel(self, text='', font=self.system_variables['normalFont'],
+        self.info_label = ctk.CTkLabel(self, text='', font=self.system_variables['PFont'],
                                        text_color='green')  # label to show info about button clicks & all
         
 
         self.menu_panel_title.pack(padx=30, pady=10, anchor='center')  ####### ↓↓↓ placing widgets ↓↓↓ #######
         self.open_button.pack(padx=30, pady=10, anchor='center')
         self.data_button.pack(padx=30, pady=10, anchor='center')
+        self.data_headers_label.pack(padx=30, pady=(5,0), anchor='center')
         self.data_headers.pack(padx=30, pady=5, anchor='center')
         self.info_label.pack(padx=30, pady=20, anchor='center')
 
     def load_data(self):
+        if self.master.system_variables['filepath'] == "":
+            mb.showerror('Error', 'Please select an image first')
+            return
         self.master.system_variables['datafilepath']= filedialog.askopenfilename()
         df = pd.read_csv(self.master.system_variables['datafilepath'])
         self.data_headers.configure(state="normal")
@@ -44,10 +49,10 @@ class LeftUpperFrame(ctk.CTkFrame):
         for x in headers:
             if x != "email":
                 self.master.placeholders.append(Placeholder(self.master,x,self.master.canvas,x,100,100,i))
-                print(x)
                 i += 1
                 self.data_headers.insert("end", x+"\n")
         self.data_headers.configure(state="disabled")
+        self.master.RightUpperFrame.name_entry.configure(values=["S. No."]+[x.header for x in self.master.placeholders])
 
     def open_image(self):
         if True:
@@ -73,12 +78,13 @@ class LeftBottomFrame(ctk.CTkFrame):
         self.system_variables = system_variables
         self.master = master
 
-        self.placeholder_label = ctk.CTkLabel(self, text='Select a Placeholder', font=self.system_variables['normalFont'])
+        self.placeholder_label = ctk.CTkLabel(self, text='Select Placeholder', font=self.system_variables['PFont'])
         self.placeholder_label.pack(padx=30, pady=10, anchor='center')
 
-        self.font_label = ctk.CTkLabel(self, text='Font Size', font=self.system_variables['normalFont'])
+        self.font_label = ctk.CTkLabel(self, text='Font Size', font=self.system_variables['PFont'])
         self.font_label.pack(padx=30, pady=10, anchor='center')
         self.font_size = ctk.CTkSlider(self, from_=10, to=100, command=self.change_font_size)
+        self.font_size.configure(state="disabled")
         self.font_size.pack(padx=30, pady=10, anchor='center')
         
 

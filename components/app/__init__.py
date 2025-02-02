@@ -26,30 +26,32 @@ from components.app.RightFrame import RightUpperFrame, RightBottomFrame
 class App(ctk.CTk):  ####### ↓↓↓ Main Window or Root ↓↓↓ #######
     def __init__(self, system_variables):
         super().__init__()
+        self.placeholders = []
+        self.selected_placeholder = None
 
         self.system_variables = system_variables
         self.title("Certifly")
         self.iconbitmap('components/images/icon.ico')  # certifly window icon
         self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}+0+0")  # full screen window
 
-        self.title = ctk.CTkLabel(self, text='E-Certify', font=('components/fonts/Montserrat-Bold.ttf', 50))  # Setting title
+        self.title = ctk.CTkLabel(self, text='E-Certify', font=self.system_variables['H1Font'])  # Setting title
         self.title.grid(row=0,column=1,sticky='new')  ####### ↓↓↓ placing title, tagline & mode switcher ↓↓↓ #######
         
-        self.tagline = ctk.CTkLabel(self, text='E-Certificates made easy!', font=self.system_variables['normalFont'])  # Setting tagline
+        self.tagline = ctk.CTkLabel(self, text='E-Certificates made easy!', font=self.system_variables['H2Font'])  # Setting tagline
         self.bind("<Escape>", self.exit_window)  # press 'escape' to exit the window
         
         self.tagline.grid(row=1,column=1,sticky='new')
         self.LeftUpperFrame = LeftUpperFrame(self,system_variables)  ####### ↓↓↓ Frame to hold the name textbox and related buttons ↓↓↓ #######
-        self.LeftUpperFrame.grid(row=2,column=0,sticky='nwes',padx = 30,pady=10)
+        self.LeftUpperFrame.grid(row=2,column=0,sticky='nwes',padx = 20,pady=10)
 
         self.LeftBottomFrame = LeftBottomFrame(self,system_variables)  ####### ↓↓↓ Frame to hold Font Settings ↓↓↓ #######
-        self.LeftBottomFrame.grid(row=3,column=0,sticky='nwes',padx = 30,pady=20)
+        self.LeftBottomFrame.grid(row=3,column=0,sticky='nwes',padx = 20,pady=10)
 
-        self.RightFrame = RightUpperFrame(self,system_variables)  ####### ↓↓↓ Frame to Add Buttons in the Right ↓↓↓ #######
-        self.RightFrame.grid(row=2,column=2,sticky='nwes',padx = 30,pady=20)
+        self.RightUpperFrame = RightUpperFrame(self,system_variables)  ####### ↓↓↓ Frame to Add Buttons in the Right ↓↓↓ #######
+        self.RightUpperFrame.grid(row=2,column=2,sticky='nwes',padx = 20,pady=10)
 
         self.RightBottomFrame = RightBottomFrame(self,system_variables) ####### ↓↓↓ Frame to hold Export Buttons ↓↓↓ #######
-        self.RightBottomFrame.grid(row=3,column=2,sticky='nwes',padx = 30,pady=20)
+        self.RightBottomFrame.grid(row=3,column=2,sticky='nwes',padx = 20,pady=10)
 
         
         self.canvasFrame = ctk.CTkFrame(self)  ####### ↓↓↓ Frame to hold canvas and dragging & opened image ↓↓↓ #######
@@ -58,8 +60,7 @@ class App(ctk.CTk):  ####### ↓↓↓ Main Window or Root ↓↓↓ #######
                                     height=857)  # canvas to display dragging & opened image
         self.canvas.grid(row=0, column=0    , sticky="nsew")
 
-        self.placeholders = []
-        self.selected_placeholder = None
+        
 
     
         

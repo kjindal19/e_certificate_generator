@@ -11,13 +11,14 @@ Text Alignment
 color
 
 
-Stamp/ Signature in rightupperframe
+Stamp/ Signature in ??
 
 
 Show Sample opens top level with button to change certificate data from csv
 
+Font size small when exporting
 
-Export Folder Selection in right bottom frame
+
 
 
 mail merging using 

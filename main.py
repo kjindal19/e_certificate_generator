@@ -13,8 +13,15 @@ normalFont = ('components/fonts/Montserrat-Regular.ttf', 17)  # used many times 
 
 
 System_Variables = {
-    "normalFont" : ('components/fonts/Montserrat-Regular.ttf', 17),
+    "H1Font" : ('components/fonts/Montserrat-Bold.ttf', 50),
+    "H2Font" : ('components/fonts/Montserrat-Bold.ttf', 30),
+    "H3Font" : ('components/fonts/Montserrat-Bold.ttf', 20),
+    "H4Font" : ('components/fonts/Montserrat-Bold.ttf', 17),
+    "PFont" : ('components/fonts/Montserrat-Regular.ttf', 17),
+    "SFont" : ('components/fonts/Montserrat-Regular.ttf', 12),
     "mode": False, # False for light mode, True for dark mode
+    "filepath": "",
+    "datafilepath": "",
 
 
 }

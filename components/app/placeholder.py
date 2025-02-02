@@ -41,10 +41,12 @@ class Placeholder:
             self.master.selected_placeholder = None
             self.master.LeftBottomFrame.placeholder_label.configure(text="Select Placeholder")
             self.master.LeftBottomFrame.font_size.set(30)
+            self.master.LeftBottomFrame.font_size.configure(state="disabled")
         else:
             self.master.selected_placeholder = self
             self.master.LeftBottomFrame.placeholder_label.configure(text=f"{self.header} selected")
             self.master.LeftBottomFrame.font_size.set(self.size)
+            self.master.LeftBottomFrame.font_size.configure(state="normal")
 
 
     def move(self, event):
