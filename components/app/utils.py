@@ -2,13 +2,6 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 
 
-
-
-
-
-
-
-
 def open_folder():
     if os.path.isdir("generated_certificates"):
         os.startfile('generated_certificates')

@@ -1,0 +1,25 @@
+
+https://github.com/Akascape?tab=repositories
+
+
+Pending Work
+
+Font List
+Bold, italic, underline
+Capitalize
+Text Alignment
+color
+
+
+Stamp/ Signature in rightupperframe
+
+
+Show Sample opens top level with button to change certificate data from csv
+
+
+Export Folder Selection in right bottom frame
+
+
+mail merging using 
+
+https://medium.com/@lisa_/easy-mail-merge-with-attachments-personalisation-with-python-a-quick-tutorial-for-windows-ea771d13a2b2
